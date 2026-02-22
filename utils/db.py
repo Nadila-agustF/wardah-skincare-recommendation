@@ -16,7 +16,7 @@ class DatabaseConnection:
                 database=st.secrets["mysql"]["database"],
                 user=st.secrets["mysql"]["user"],
                 password=st.secrets["mysql"]["password"],
-                ssl_ca=ssl_ca_path,
+                ssl_ca=st.secrets["mysql"]["ssl_ca"],
                 ssl_verify_cert=True,
                 use_pure=True,
                 connection_timeout=5
