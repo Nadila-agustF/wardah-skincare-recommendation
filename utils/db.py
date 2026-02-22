@@ -2,7 +2,12 @@ import tempfile
 import mysql.connector
 import streamlit as st
 
-
+def write_ca_file(ca_text):
+    temp = tempfile.NamedTemporaryFile(delete=False, suffix=".pem")
+    temp.write(ca_text.encode())
+    temp.close()
+    return temp.name
+    
 class DatabaseConnection:
     def __init__(self):
         self.connection = None
@@ -10,13 +15,15 @@ class DatabaseConnection:
     def connect(self):
         """Membuat koneksi ke database MySQL (Aiven)"""
         try:
+            ssl_path = write_ca_file(st.secrets["mysql"]["ssl_ca"])
+            
             self.connection = mysql.connector.connect(
                 host=st.secrets["mysql"]["host"],
                 port=st.secrets["mysql"]["port"],
                 database=st.secrets["mysql"]["database"],
                 user=st.secrets["mysql"]["user"],
                 password=st.secrets["mysql"]["password"],
-                ssl_ca=st.secrets["mysql"]["ssl_ca"],
+                ssl_ca=ssl_path,
                 ssl_verify_cert=True,
                 connection_timeout=10
             )
@@ -89,6 +96,7 @@ class DatabaseConnection:
         except Exception as e:
             print(f"❌ Error saving recommendations: {e}")
             return False
+
 
 
 
