@@ -103,7 +103,7 @@ def show_admin_login_page():
     # Check if user is temporarily locked out
     current_time = time.time()
     lockout_time = 300  # 5 minutes lockout
-    if st.session_state.login_attempts >= 3:
+    if st.session_state.login_attempts >= 5:
         time_since_last = current_time - st.session_state.last_attempt_time
         if time_since_last < lockout_time:
             remaining = int((lockout_time - time_since_last) / 60)
@@ -210,26 +210,17 @@ def show_admin_login_page():
         # =============================
         st.session_state.login_attempts += 1
 
-        if st.session_state.login_attempts >= 3:
+        if st.session_state.login_attempts >= 5:
             st.error("❌ Terlalu banyak percobaan gagal. Akun terkunci sementara.")
         else:
-            st.error(f"❌ Username atau password salah ({st.session_state.login_attempts}/3)")
-        
-        if st.session_state.admin_role == "Super Admin":
-            st.sidebar.button("👤 Tambah Admin")
-
+            st.error(f"❌ Username atau password salah ({st.session_state.login_attempts}/5)")
 
     
     # # Help section
     # with st.expander("ℹ️ **Bantuan Login**", expanded=False):
     #     st.markdown("""
     #     ### **Default Admin Accounts:**
-        
-    #     | Username | Password | Role |
-    #     |----------|----------|------|
-    #     | admin | admin | Super Admin |
-    #     | wardah | wardah123 | Wardah Admin |
-        
+
     #     ### **Fitur Keamanan:**
     #     1. Password di-hash menggunakan SHA-256
     #     2. Limit 3 percobaan login
