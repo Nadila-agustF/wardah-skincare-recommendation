@@ -16,7 +16,7 @@ class DatabaseConnection:
         try:
             ssl_path = create_ssl_file(st.secrets["mysql"]["ssl_ca"])
             
-            self.connection = mysql.connector.connect
+            self.connection = mysql.connector.connect(
                 host=st.secrets["mysql"]["host"],
                 port=st.secrets["mysql"]["port"],
                 database=st.secrets["mysql"]["database"],
@@ -95,6 +95,7 @@ class DatabaseConnection:
         except Exception as e:
             print(f"❌ Error saving recommendations: {e}")
             return False
+
 
 
 
