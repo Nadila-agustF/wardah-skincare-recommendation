@@ -159,8 +159,11 @@ def show_rekomendasi():
         conn = None
         try:
             conn = DatabaseConnection()
-            conn.connect()
+            connection = conn.connect()
 
+            if connection is None:  # Cek apakah connect berhasil
+                st.error("❌ Gagal terhubung ke database")
+                return
             cursor = conn.cursor()
 
             # ================= USER =================
@@ -233,6 +236,8 @@ def show_rekomendasi():
 
         except Exception as e:
             st.warning(f"Database error: {e}")
+            import traceback
+            traceback.print_exc()
 
         finally:
             if conn:
@@ -335,3 +340,4 @@ def show_rekomendasi():
         <p>Content-Based Filtering using TF-IDF + Cosine Similarity</p>
     </div>
     """, unsafe_allow_html=True)
+
