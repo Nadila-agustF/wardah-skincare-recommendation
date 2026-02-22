@@ -1,3 +1,4 @@
+import tempfile
 import mysql.connector
 import streamlit as st
 
@@ -11,7 +12,7 @@ class DatabaseConnection:
         try:
             self.connection = mysql.connector.connect(
                 host=st.secrets["mysql"]["host"],
-                port=int(st.secrets["mysql"]["port"]),
+                port=st.secrets["mysql"]["port"],
                 database=st.secrets["mysql"]["database"],
                 user=st.secrets["mysql"]["user"],
                 password=st.secrets["mysql"]["password"],
@@ -88,6 +89,7 @@ class DatabaseConnection:
         except Exception as e:
             print(f"❌ Error saving recommendations: {e}")
             return False
+
 
 
 
