@@ -27,7 +27,7 @@ class DatabaseConnection:
                 ssl_verify_cert=True,
                 connection_timeout=10
             )
-            st.success("✅ Database connected successfully")
+            
             return self.connection
             
         except Exception as e:
@@ -96,6 +96,7 @@ class DatabaseConnection:
         except Exception as e:
             print(f"❌ Error saving recommendations: {e}")
             return False
+
 
 
 
