@@ -16,11 +16,13 @@ class DatabaseConnection:
                 database=st.secrets["mysql"]["database"],
                 user=st.secrets["mysql"]["user"],
                 password=st.secrets["mysql"]["password"],
-                ssl_ca=st.secrets["mysql"]["ssl_ca"],
-                ssl_verify_cert=True,
+                # ssl_ca=st.secrets["mysql"]["ssl_ca"],
+                # ssl_verify_cert=True,
                 use_pure=True,
-                connection_timeout=5
+                connection_timeout=5,
+                ssl_disabled = True
             )
+            print("✅ Database connected successfully")
             return self.connection
         except Exception as e:
             print(f"❌ Database connection error: {e}")
@@ -89,5 +91,6 @@ class DatabaseConnection:
         except Exception as e:
             print(f"❌ Error saving recommendations: {e}")
             return False
+
 
 
