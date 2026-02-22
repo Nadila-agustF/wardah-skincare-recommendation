@@ -1,0 +1,90 @@
+import mysql.connector
+import streamlit as st
+
+
+class DatabaseConnection:
+    def __init__(self):
+        self.connection = None
+
+    def connect(self):
+        """Membuat koneksi ke database MySQL (Aiven)"""
+        try:
+            self.connection = mysql.connector.connect(
+                host=st.secrets["mysql"]["host"],
+                port=st.secrets["mysql"]["port"],
+                database=st.secrets["mysql"]["database"],
+                user=st.secrets["mysql"]["user"],
+                password=st.secrets["mysql"]["password"],
+                ssl_ca=st.secrets["mysql"]["ssl_ca"],
+                ssl_verify_cert=True,
+                use_pure=True,
+                connection_timeout=5
+            )
+            return self.connection
+        except Exception as e:
+            print(f"❌ Database connection error: {e}")
+            self.connection = None
+            return None
+
+    def is_connected(self):
+        return self.connection is not None and self.connection.is_connected()
+
+    def cursor(self):
+        if not self.is_connected():
+            raise RuntimeError("Database belum terhubung. Panggil connect() terlebih dahulu.")
+        return self.connection.cursor()
+
+    def commit(self):
+        if self.is_connected():
+            self.connection.commit()
+
+    def close(self):
+        """Tutup koneksi database (FIX UTAMA)"""
+        if self.is_connected():
+            self.connection.close()
+            self.connection = None
+
+    # ===============================
+    # SAVE USER HISTORY
+    # ===============================
+    def save_user_history(self, username, age, gender, skin_type, category):
+        if not self.is_connected():
+            return None
+
+        try:
+            cursor = self.cursor()
+            query = """
+                INSERT INTO user_history (username, age, gender, skin_type, category)
+                VALUES (%s, %s, %s, %s, %s)
+            """
+            cursor.execute(query, (username, age, gender, skin_type, category))
+            self.commit()
+            return cursor.lastrowid
+        except Exception as e:
+            print(f"❌ Error saving user history: {e}")
+            return None
+
+    # ===============================
+    # SAVE RECOMMENDATIONS
+    # ===============================
+    def save_recommendations(self, user_id, recommendations, product_urls=None):
+        """Save recommendations to database"""
+        if not self.is_connected():
+            return False
+
+        try:
+            cursor = self.cursor()
+            query = """
+                INSERT INTO recommendations (user_id, product_name, rank_no, product_url)
+                VALUES (%s, %s, %s, %s)
+            """
+
+            for i, product in enumerate(recommendations):
+                url = product_urls[i] if product_urls else None
+                cursor.execute(query, (user_id, product, i + 1, url))
+
+            self.commit()
+            return True
+        except Exception as e:
+            print(f"❌ Error saving recommendations: {e}")
+            return False
