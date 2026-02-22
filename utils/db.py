@@ -6,11 +6,13 @@ import streamlit as st
 class DatabaseConnection:
     def __init__(self):
         self.connection = None
+        
     def create_ssl_file(cert_text):
         temp = tempfile.NamedTemporaryFile(delete=False)
         temp.write(cert_text.encode())
         temp.close()
         return temp.name
+        
     def connect(self):
         """Membuat koneksi ke database MySQL (Aiven)"""
         try:
@@ -95,6 +97,7 @@ class DatabaseConnection:
         except Exception as e:
             print(f"❌ Error saving recommendations: {e}")
             return False
+
 
 
 
