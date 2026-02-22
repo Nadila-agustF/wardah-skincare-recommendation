@@ -9,23 +9,20 @@ class DatabaseConnection:
     def connect(self):
         """Membuat koneksi ke database MySQL (Aiven)"""
         try:
-            ssl_ca_path = Path(__file__).parent.parent / "ca.pem"
             self.connection = mysql.connector.connect(
                 host=st.secrets["mysql"]["host"],
-                port=st.secrets["mysql"]["port"],
+                port=int(st.secrets["mysql"]["port"]),
                 database=st.secrets["mysql"]["database"],
                 user=st.secrets["mysql"]["user"],
                 password=st.secrets["mysql"]["password"],
-                # ssl_ca=st.secrets["mysql"]["ssl_ca"],
-                # ssl_verify_cert=True,
-                use_pure=True,
-                connection_timeout=5,
-                ssl_disabled = True
+                ssl_ca=st.secrets["mysql"]["ssl_ca"],
+                ssl_verify_cert=True,
+                connection_timeout=5
             )
             print("✅ Database connected successfully")
             return self.connection
         except Exception as e:
-            print(f"❌ Database connection error: {e}")
+            st.error(f"❌ Database connection error: {e}")
             self.connection = None
             return None
 
@@ -91,6 +88,7 @@ class DatabaseConnection:
         except Exception as e:
             print(f"❌ Error saving recommendations: {e}")
             return False
+
 
 
 
