@@ -93,8 +93,9 @@ def show_admin_layout():
         if "activity_id" in st.session_state:
             log_admin_logout(st.session_state.activity_id)
             
-        st.session_state.admin_logged_in = False
-        st.session_state.user_mode = None
+        st.session_state.user_mode = 'admin'
+        st.session_state.admin_logged_in = False 
         st.rerun()
+
 
     
