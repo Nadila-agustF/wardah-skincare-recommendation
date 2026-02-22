@@ -1,26 +1,35 @@
 # admin/add_admin.py
-from os import name
 import streamlit as st
 import hashlib
 import mysql.connector
 import pandas as pd
+import tempfile
 
 from utils.generator_id import generate_id
 
+# =========================
+# SSL TEMP FILE WRITER
+# =========================
+def write_ca_file(ca_text):
+    temp = tempfile.NamedTemporaryFile(delete=False, suffix=".pem")
+    temp.write(ca_text.encode())
+    temp.close()
+    return temp.name
 # ===============================
 # DB CONNECTION
 # ===============================
-
 def get_connection():
     """Membuat koneksi ke database MySQL (Aiven)"""
     try:
+        ssl_path = write_ca_file(st.secrets["mysql"]["ssl_ca"])
+        
         connection = mysql.connector.connect(
                 host=st.secrets["mysql"]["host"],
                 port=st.secrets["mysql"]["port"],
                 database=st.secrets["mysql"]["database"],
                 user=st.secrets["mysql"]["user"],
                 password=st.secrets["mysql"]["password"],
-                ssl_ca=st.secrets["mysql"]["ssl_ca"],
+                ssl_ca=ssl_path,
                 ssl_verify_cert=True,
                 use_pure=True,
                 connection_timeout=5
@@ -28,7 +37,6 @@ def get_connection():
         return connection
     except Exception as e:
             print(f"❌ Database connection error: {e}")
-            connection = None
             return None
     
 # ===============================
@@ -155,10 +163,18 @@ def add_admin(name, username, email, password, role):
 
 def get_admins():
     conn = get_connection()
-    df = pd.read_sql("SELECT * FROM admin ORDER BY id DESC", conn)
-    conn.close()
-    return df
+    if conn is None:
+        return pd.DataFrame()
 
+    try:
+        query = "SELECT id_admin, username FROM admin"
+        df = pd.read_sql(query, conn)
+        conn.close()
+        return df
+
+    except Exception as e:
+        st.error(f"Error load admin data: {e}")
+        return pd.DataFrame()
 
 def get_admins_with_status():
     """Mengambil data admin beserta status online/offline terbaru"""
@@ -217,5 +233,6 @@ def update_password(username, new_password):
     conn.commit()
     cursor.close()
     conn.close()
+
 
     st.success("🔐 Password berhasil diperbarui")
